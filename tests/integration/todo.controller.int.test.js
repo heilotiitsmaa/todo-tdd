@@ -6,6 +6,9 @@ const mongodb = require("../../mongodb/mongodb.connect");
 
 let endpoint = "/todos/";
 let firstTodo;
+let newTodoId;
+const testData = { title: "Updated todo", done: true };
+const nonExistentId = "67214bb336d09877c2987999";
 
 beforeAll(async () => {
   await mongodb.connect();
@@ -60,9 +63,35 @@ describe(endpoint, () => {
   it(
     "GET " + endpoint + ":id should return 404 when todo not found",
     async () => {
-      const response = await request(app).get(
-        endpoint + "67214bb336d09877c2987999"
-      );
+      const response = await request(app).get(endpoint + nonExistentId);
+      expect(response.statusCode).toBe(404);
+    }
+  );
+
+  it(
+    "PUT " + endpoint + " should create new todo for update test",
+    async () => {
+      const response = await request(app).post(endpoint).send(newTodo);
+      expect(response.statusCode).toBe(201);
+      newTodoId = response.body._id;
+    }
+  );
+
+  it("PUT " + endpoint + ":id should update todo", async () => {
+    const response = await request(app)
+      .put(endpoint + newTodoId)
+      .send(testData);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.title).toBe(testData.title);
+    expect(response.body.done).toBe(testData.done);
+  });
+
+  it(
+    "PUT " + endpoint + ":id should return 404 when todo not found",
+    async () => {
+      const response = await request(app)
+        .put(endpoint + nonExistentId)
+        .send(testData);
       expect(response.statusCode).toBe(404);
     }
   );
