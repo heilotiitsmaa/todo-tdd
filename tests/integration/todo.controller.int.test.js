@@ -95,4 +95,19 @@ describe(endpoint, () => {
       expect(response.statusCode).toBe(404);
     }
   );
+  it("DELETE " + endpoint + ":id should delete todo", async () => {
+    const response = await request(app).delete(endpoint + newTodoId);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toStrictEqual({
+      message: "Todo deleted successfully",
+    });
+  });
+
+  it(
+    "DELETE " + endpoint + ":id should return 404 when todo not found",
+    async () => {
+      const response = await request(app).delete(endpoint + nonExistentId);
+      expect(response.statusCode).toBe(404);
+    }
+  );
 });
